@@ -39,11 +39,8 @@ rule(is_suggested_prerequisite('programmazione', 'laboratorio di informatica') i
 rule(is_suggested_prerequisite('matematica discreta', 'basi di dati') if true).
 rule(is_suggested_prerequisite('linguaggi di programmazione', 'basi di dati') if true).
 rule(is_suggested_prerequisite('programmazione', 'ingegneria del software') if true).
-rule(is_suggested_prerequisite('programmazione', 'ingegneria del software') if true).
 rule(is_suggested_prerequisite('laboratorio di informatica', 'ingegneria del software') if true).
 rule(is_suggested_prerequisite('linguaggi di programmazione', 'ingegneria del software') if true).
-
-% Dynamic prerequisites
 
 rule(third_year_prerequisite(DoneExams, 'informatica') if
     third_year_prerequisite_no(DoneExams, 'informatica', 6)).
@@ -84,33 +81,26 @@ rule(math_prerequisite([DoneExam|DoneExams], 'informatica') if
         )
     ).
 
-rule(dynamic_prerequisites(ToDoExam, _, 'informatica') if
-    taught_in(ToDoExam, 'informatica', 1, _)
+
+rule(get_standard_prerequisites(Exam, DoneExams, Prerequisites) if
+    % get the prerequisites of ToDoExam
+    callp(find_all(TeachingName, is_prerequisite(TeachingName, Exam), PrerequisiteTeachingNames)) and
+    % some prerequisites could be already done, check if there are some
+    % remove them from the prerequisite list
+    callp(subtract(PrerequisiteTeachingNames, DoneExams, ToFilterPrerequisites)) and
+    % remove duplicates
+    callp(list_to_set(ToFilterPrerequisites, Prerequisites))
 ).
 
-rule(dynamic_prerequisites(ToDoExam, DoneExams, 'informatica') if
-    taught_in(ToDoExam, 'informatica', 2, _) and
-    math_prerequisite(DoneExams, 'informatica') and
-    second_year_prerequisite(DoneExams, 'informatica')
+rule(get_math_prerequisites(_, Year, Prerequisites) if
+    callp(Year = 1) and
+    callp(Prerequisites = [])
 ).
 
-rule(dynamic_prerequisites(ToDoExam, DoneExams, 'informatica') if
-    taught_in(ToDoExam, 'informatica', 3, _) and
-    math_prerequisite(DoneExams, 'informatica') and
-    third_year_prerequisite(DoneExams, 'informatica')
-).
-
-rule(set_of_dynamic_prerequisites(Exam, _, 'informatica', Prerequisites) if
-    taught_in(Exam, 'informatica', 1, _) and
-    callp(Prerequisites=[])
-).
-
-rule(set_of_dynamic_prerequisites(Exam, DoneExams, 'informatica', Prerequisites) if
-    taught_in(Exam, 'informatica', 2, _) and
-    % check math prerequisite
+rule(get_math_prerequisites(DoneExams, Year, Prerequisites) if
+    callp(Year > 1) and
     (
-        (
-            % if math prerequisite is satisfied -- []
+        (   % if math prerequisite is satisfied, no math prerequisites
             math_prerequisite(DoneExams, 'informatica') and
             callp(MathPrerequisites = [])
         )
@@ -124,9 +114,17 @@ rule(set_of_dynamic_prerequisites(Exam, DoneExams, 'informatica', Prerequisites)
                     callp(sub_string(Category, _, _, _, 'mat/'))
                 ), MathPrerequisites))
         )
-        
-    ) and
-    % check second year prerequisite
+    )and
+    callp(subtract(MathPrerequisites, DoneExams, Prerequisites))
+).
+
+rule(get_year_prerequisites(_, Year, YearPrerequisites) if 
+    callp(Year = 1) and
+    callp(YearPrerequisites = [])
+).
+
+rule(get_year_prerequisites(DoneExams, Year, Prerequisites) if
+    callp(Year = 2) and
     (
         (
             % if second year prerequisite is satisfied
@@ -149,47 +147,59 @@ rule(set_of_dynamic_prerequisites(Exam, DoneExams, 'informatica', Prerequisites)
                     )
                 ), SYPrerequisites))
         ) 
-    ) and
-    % concatenate found prerequisites
-    callp(append(MathPrerequisites, SYPrerequisites, Prerequisites))
+    )and
+    callp(subtract(SYPrerequisites, DoneExams, Prerequisites))
 ).
 
-rule(set_of_dynamic_prerequisites(Exam, DoneExams, 'informatica', Prerequisites) if
-    % remove from DoneExams from Prerequisites
-    taught_in(Exam, 'informatica', 3, _) and
-    % check math prerequisite
+rule(get_year_prerequisites(DoneExams, Year, Prerequisites) if
+    callp(Year = 3) and
     (
-        (
-            % if math prerequisite is satisfied -- []
-            math_prerequisite(DoneExams, 'informatica') and
-            callp(MathPrerequisites = [])
-        )
-        or
-        (
-            % if not take all exams that can help satisfy prerequisite
-            callp(find_all(Teaching,
-                (
-                    teaching(Teaching, _, Category, _) and
-                    taught_in(Teaching, 'informatica', 1, _) and
-                    callp(sub_string(Category, _, _, _, 'MAT/'))
-                ), MathPrerequisites))
-        )
-        
-    ) and
-    % check third year prerequisite
-    (
-        (
-            % if third year prerequisite is satisfied -- []
+        (   % if third year prerequisite is satisfied
             third_year_prerequisite(DoneExams, 'informatica') and
             callp(TYPrerequisites = [])
         )
         or
-        (
-            % if not take all exams that can help satisfy prerequisite
+        (   % if not take all exams that can help satisfy prerequisite
             callp(find_all(Teaching, taught_in(Teaching, 'informatica', 1, _), TYPrerequisites))
-        ) 
-    ) and
-    % concatenate found prerequisites
-    callp(append(MathPrerequisites, TYPrerequisites, PartialPrerequisites)) and
-    callp(subtract(PartialPrerequisites, DoneExams, Prerequisites))
+        )
+    )and
+    callp(subtract(TYPrerequisites, DoneExams, Prerequisites))
+).
+
+rule(pick_prerequisite(STPrerequisites, MathPrerequisites, YearPrerequisites, Prerequisites) if
+    callp(intersection(STPrerequisites, MathPrerequisites, ST_M_Intersection)) and
+    callp(intersection(ST_M_Intersection, YearPrerequisites, Intersection)) and
+    (
+        (   % if there are exams that can satisfy all prerequisites, prioritize them
+            callp(\+ Intersection = []) and
+            callp(Prerequisites = Intersection)
+        )
+        or
+        (   % if there are exams that can satisfy two kind of prerequisites, prioritize them
+            callp(intersection(YearPrerequisites, MathPrerequisites, Y_M_Intersection)) and
+            callp(intersection(STPrerequisites, YearPrerequisites, ST_YIntersection)) and
+            callp(union(Y_M_Intersection, ST_YIntersection, PartialUnion)) and
+            callp(union(PartialUnion, ST_M_Intersection, Union)) and
+            % union contains exam that can help satisfying two kind of prerequisites
+            (
+                (
+                    callp(\+ Union = []) and
+                    callp(Prerequisites = Union)
+                )
+            or
+                (   % else take the exams that can help satisfying one kind of prerequisites
+                    callp(append(STPrerequisites, MathPrerequisites, PartialPrerequisites)) and
+                    callp(append(PartialPrerequisites, YearPrerequisites, Prerequisites))
+                )
+            )
+        )
+    )
+).
+
+rule(set_of_prioritized_prerequisites(Exam, DoneExam, 'informatica', Prerequisites) if
+    taught_in(Exam, 'informatica', Year, _) and
+    get_standard_prerequisites(Exam, DoneExam, STPrerequisites) and
+    get_math_prerequisites(DoneExam, Year, MathPrerequisites) and
+    get_year_prerequisites(DoneExam, Year, YearPrerequisites) and
+    pick_prerequisite(STPrerequisites, MathPrerequisites, YearPrerequisites, Prerequisites)
 ).

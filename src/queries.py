@@ -46,7 +46,7 @@ def get_cdl_ordering(cdl_name: str, done_exams: list, year: int, semester: int):
     table['Name'] = table['Name'].apply(lambda x: x.title())
     table['Ssd'] = table['Ssd'].apply(lambda x: x.upper())
     table['Optional'] = table['Optional'].apply(lambda x: x.capitalize())
-    title = f'{string.capwords(cdl_name)}\'s teachings ordering'
+    title = f'{string.capwords(cdl_name)}\'s teachings ordering, having done {done_exams}'
     return table, title
 
 

@@ -132,7 +132,7 @@ rule(covers('ingegneria del software','analisi dei requisiti') if true).
 rule(covers('ingegneria del software','stili architetturali') if true).
 rule(covers('ingegneria del software','object oriented design') if true).
 rule(covers('ingegneria del software','testing') if true).
-rule(covers('ingegneria del software','manutenzione') if true).
+rule(covers('ingegneria del software','manutenzione del software') if true).
 
 
 rule(covers('metodi avanzati di programmazione','paradigmi di programmazione') if true).

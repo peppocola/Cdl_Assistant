@@ -26,7 +26,7 @@ def test_tables():
     table_ordering = create_rich_table(table, title)
     print(table_ordering)
 
-    table, title = get_covers_ordering('informatica', [], 3, 2, ['information filtering', 'generi e tipologie di videogiochi'])
+    table, title = get_covers_ordering('informatica', [], 3, 2, ['information filtering', 'generi e tipologie di videogiochi', 'testing', 'funzioni hash'])
     table_ordering = create_rich_table(table, title)
     print(table_ordering)
 

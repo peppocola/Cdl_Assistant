@@ -5,11 +5,8 @@
 :- dynamic rule/1.
 
 % TODO :
-% - topics teaching can lead to more exams than stricly necessary (do some intersection to prioritize exams which satisfy more prerequisites)
-% - optional teachings can be improved 
 % - admission test
-% - optional teachings from other cdl
-% - add check on goal cfu
+% - recommended prerequisites
 
 rule(goal_cdl(Cdl, DoneExams, Ordering) if
     cdl(Cdl, _, NoYears, _) and
@@ -124,10 +121,14 @@ rule(goal_covers(Cdl, DoneExams, Topics, SubYear, SubSemester, Ordering) if
     callp(subtract(Adjusted_Cdl_Teachings, DoneExams, ToDoExams)) and
     % random permute the exams
     callp(random_permutation(ToDoExams, ShuffledExams)) and
+    % get all standard prerequisites
+    get_all_standard_prerequisites(ShuffledExams, DoneExams, STPrerequisites) and
+    % create todo exams list
+    callp(append(STPrerequisites, ShuffledExams, ListToDoExams)) and
+    callp(list_to_set(ListToDoExams, NewToDoExams)) and
     % find an ordering which respects prerequisites
-    ordering(ShuffledExams, DoneExams, Cdl, Ordering)
+    ordering(NewToDoExams, DoneExams, Cdl, Ordering)
 ).
-
 
 rule(goal_cfu_count(Cdl, DoneExams, RequiredCfu, Ordering, Count) if
     cdl(Cdl, _, NoYears, _) and
@@ -200,80 +201,32 @@ rule(goal_cfu(Cdl, DoneExams, SubYear, SubSemester, RequiredCfu, Ordering) if
     callp(random_permutation(ToShuffleExams, ShuffledExams)) and
     % find an ordering which respects prerequisites
     cfu_ordering_(ShuffledExams, DoneExams, RequiredCfu, Cdl, Ordering)
-
 ).
 
-
-% case no exams to do
 rule(ordering([], _, _, []) if true).
 
-% case no static prerequisite
 rule(ordering([ToDoExam|ToDoExams], DoneExams, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachingNames)) and
-    % some prerequisites could be already done, check if there are some
-    % remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachingNames, DoneExams, ToDoPrerequisites)) and
-    % list is empty
-    callp(ToDoPrerequisites = []) and
-    % check dynamic prerequisites
-    set_of_dynamic_prerequisites(ToDoExam, DoneExams, Cdl, DPrerequisites) and
+    % check prerequisites
+    set_of_prioritized_prerequisites(ToDoExam, DoneExams, Cdl, Prerequisites) and
     (
         (
-            callp(DPrerequisites = []) and
+            callp(Prerequisites = []) and
             % the exam should be put in the ordering
             callp(Ordering = [ToDoExam|RecOrdering]) and
             % recursively call the ordering rule
             ordering(ToDoExams, [ToDoExam|DoneExams], Cdl, RecOrdering)
         ) or
         (
-            pick_an_exam(DPrerequisites, DoneExams, Exam) and
+            pick_an_exam(Prerequisites, Exam) and
             % remove exam from todo list
             callp(subtract(ToDoExams, [Exam], ToDoExamsWithoutNewExam)) and
-            % if dynamic prerequisites are not satisfied, add a prerequisite exam to the todo list
-            callp(append([Exam], [ToDoExam|ToDoExamsWithoutNewExam], NewToDoExams)) and
             % recursively call the ordering rule
-            ordering(NewToDoExams, DoneExams, Cdl, Ordering)
+            ordering([Exam, ToDoExam|ToDoExamsWithoutNewExam], DoneExams, Cdl, Ordering)
         )
     )
 ).
 
-% case prerequisite are not satisfied and some of them are in todo
-rule(ordering([ToDoExam|ToDoExams], DoneExams, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachings)) and
-    % some prerequisites could be already done, check if there are some
-    % remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachings, DoneExams, ToDoPrerequisites)) and
-    % list is not empty
-    callp(\+(ToDoPrerequisites = [])) and
-    % if they are in ToDoExams
-    callp(intersection(ToDoPrerequisites, ToDoExams, Intersection)) and
-    callp(\+ (Intersection = [])) and
-    % remove them from ToDoExams to bring them to the front
-    callp(subtract(ToDoExams, Intersection, ToDoExamsReduced)) and
-    % call the ordering rule with the prerequisites exams as first to do
-    callp(append(ToDoPrerequisites, [ToDoExam|ToDoExamsReduced], NewToDoExams)) and
-    ordering(NewToDoExams, DoneExams, Cdl, Ordering)
-).
-
-% case prerequisite are not satisfied and none of them are in todo
-rule(ordering([ToDoExam|ToDoExams], DoneExams, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachings)) and
-    % some prerequisites could be already done, check if there are some
-    % remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachings, DoneExams, ToDoPrerequisites)) and
-    % list is not empty
-    callp(\+(ToDoPrerequisites = [])) and
-    % if they are not in ToDoExams
-    callp(intersection(ToDoPrerequisites, ToDoExams, Intersection)) and
-    callp(Intersection = []) and
-    % call the ordering rule with the prerequisites exams as first to do
-    callp(append(ToDoPrerequisites, [ToDoExam|ToDoExams], NewToDoExams)) and
-    ordering(NewToDoExams, DoneExams, Cdl, Ordering)
-).
-
+% sample an exam and call cfu_ordering
 rule(cfu_ordering_(ToDoExams, DoneExams, RequiredCfu, Cdl, Ordering) if 
     callp(\+ (ToDoExams = [])) and
     % sample an exam
@@ -284,57 +237,27 @@ rule(cfu_ordering_(ToDoExams, DoneExams, RequiredCfu, Cdl, Ordering) if
     cfu_ordering([ToDoExam|ToDoExamsWithoutNewExam], DoneExams, RequiredCfu, Cdl, Ordering)
 ).
 
-% case static prerequisites
-rule(cfu_ordering([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachingNames)) and
-    % some prerequisites could be already done, check if there are some
-    % remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachingNames, DoneExams, ToDoPrerequisites)) and
-    % list is empty
-    % case static prerequisites are NOT satisfied 
-    callp(\+ ToDoPrerequisites = []) and
-    % if they are in ToDoExams remove them from ToDoExams to avoid duplicates
-    callp(subtract(ToDoExams, ToDoPrerequisites, ToDoExamsReduced)) and
-    % call the ordering rule with the new prerequisites exams
-    callp(append(ToDoPrerequisites, [ToDoExam|ToDoExamsReduced], NewToDoExams)) and
-    cfu_ordering_(NewToDoExams, DoneExams, RequiredCfu, Cdl, Ordering)
-).
 
-% case no static prerequisite, but dynamic
+% case prerequisites are not satisfied
 rule(cfu_ordering([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachingNames)) and
-    % some prerequisites could be already done, remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachingNames, DoneExams, ToDoPrerequisites)) and
-    % case static prerequisites are satisfied 
-    callp(ToDoPrerequisites = []) and
-    % check dynamic prerequisites
-    set_of_dynamic_prerequisites(ToDoExam, DoneExams, Cdl, DPrerequisites) and
-    % case dynamic prerequisites are not satisfied
-    callp(\+DPrerequisites = []) and
-    % pick an exam from the ones which can help satisfying prerequisites and it is not already done
-    pick_an_exam(DPrerequisites, DoneExams, PrerequisiteExam) and
+    % check prerequisites
+    set_of_prioritized_prerequisites(ToDoExam, DoneExams, Cdl, Prerequisites) and
+    % case prerequisites are not satisfied
+    callp(\+Prerequisites = []) and
+    % pick an exam from the ones which can help satisfying prerequisites
+    pick_an_exam(Prerequisites, PrerequisiteExam) and
     % remove exam from todo list to avoid duplicates
     callp(subtract(ToDoExams, [PrerequisiteExam], ToDoExamsWithoutNewPrerequisite)) and
     % recursively call the ordering rule
     cfu_ordering_([PrerequisiteExam, ToDoExam|ToDoExamsWithoutNewPrerequisite], DoneExams, RequiredCfu, Cdl, Ordering)
 ).
 
-% case no static prerequisite, no dynamic
+% case prerequisites are satisfied
 rule(cfu_ordering([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) if
-    % get the prerequisites of ToDoExam
-    callp(find_all(TeachingName, is_prerequisite(TeachingName, ToDoExam), PrerequisiteTeachingNames)) and
-    % some prerequisites could be already done, check if there are some
-    % remove them from the prerequisite list
-    callp(subtract(PrerequisiteTeachingNames, DoneExams, ToDoPrerequisites)) and
-    % list is empty
-    % case static prerequisites are satisfied 
-    callp(ToDoPrerequisites = []) and
-    % check dynamic prerequisites
-    set_of_dynamic_prerequisites(ToDoExam, DoneExams, Cdl, DPrerequisites) and
-    % case dynamic prerequisites are satisfied
-    callp(DPrerequisites = []) and
+    % check prerequisites
+    set_of_prioritized_prerequisites(ToDoExam, DoneExams, Cdl, Prerequisites) and
+    % case prerequisites are satisfied
+    callp(Prerequisites = []) and
     % the exam should be put in the ordering
     callp(Ordering = [ToDoExam|RecOrdering]) and
     % see if there are still required cfus
@@ -360,10 +283,33 @@ rule(cfu_ordering([], _, RequiredCfu, _, _) if
     callp(RequiredCfu =< 0)
 ).
 
-rule(pick_an_exam(Prerequisites, DoneExams, Exam) if 
-    callp(subtract(Prerequisites, DoneExams, NewPrerequisites)) and
-    callp(random_permutation(NewPrerequisites, [Exam|_]))
+rule(pick_an_exam(Exams, Exam) if 
+    callp(random_permutation(Exams, [Exam|_]))
 ).
+
+rule(pick_priority_exam(Exams, DoneExams, Exam) if 
+    count_standard_prerequisites(Exams, DoneExams, Lens) and
+    callp(max_l(Exams, Lens, Exam, _))
+).
+
+rule(count_standard_prerequisites([Exam|Exams], DoneExams, [Len|Lens]) if
+    get_standard_prerequisites(Exam, DoneExams, STPrerequisites) and
+    callp(length(STPrerequisites, Len)) and
+    count_standard_prerequisites(Exams, DoneExams, Lens)
+).
+rule(count_standard_prerequisites([], _, []) if true).
+
+rule(get_all_standard_prerequisites(Exams, DoneExams, Prerequisites) if
+    get_all_standard_prerequisites_(Exams, DoneExams, ListPrerequisites) and
+    callp(list_to_set(ListPrerequisites, Prerequisites))
+).
+
+rule(get_all_standard_prerequisites_([Exam|Exams], DoneExams, Prerequisites) if
+    get_standard_prerequisites(Exam, DoneExams, STPrerequisites) and
+    get_all_standard_prerequisites_(Exams, DoneExams, OtherSTPrerequisites) and
+    callp(append(STPrerequisites, OtherSTPrerequisites, Prerequisites))
+).
+rule(get_all_standard_prerequisites_([], _, []) if true).
 
 rule(cfu_to_probability([Exam|Exams], Cdl, [P|Ps]) if 
     teaching(Exam, Cfu, _, _) and
@@ -381,22 +327,6 @@ rule(cfu_to_probability([Exam|Exams], Cdl, TotalExamsCfu, [P|Ps]) if
     cfu_to_probability(Exams, Cdl, TotalExamsCfu, Ps)
 ).
 rule(cfu_to_probability([], _, _, []) if true).
-
-rule(sum_to_one([P|Ps], NP) if 
-    callp(list_sum([P|Ps], Sum)) and
-    (   
-        (
-            callp(Sum is 1.00) and
-            callp(NP = [P|Ps])
-        )
-        or
-        (
-            callp(Diff is 1.00 - Sum) and
-            callp(F is P + Diff) and
-            callp(NP = [F|Ps])
-        )
-    )
-).
 
 rule(sample_exam(ToDoExams, Cdl, Exam) if
      % sum the cfus in ToDoExams

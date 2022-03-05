@@ -25,3 +25,7 @@ list_sum([],0).
 list_sum([Head|Tail], TotalSum):-
     list_sum(Tail, Sum1),
     TotalSum is Head+Sum1.
+
+max_l([Y],[X],Y,X) :- !.
+max_l([_|Ys], [X|Xs], My, Mx):- max_l(Ys, Xs, My, Mx), Mx > X, !.
+max_l([Y|Ys], [X|Xs], Y, X):- max_l(Ys, Xs, _, Mx), X >=  Mx, !.
