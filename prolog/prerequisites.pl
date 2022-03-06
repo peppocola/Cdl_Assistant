@@ -38,10 +38,10 @@ rule(is_suggested_prerequisite('matematica discreta', 'linguaggi di programmazio
 rule(is_suggested_prerequisite('programmazione', 'laboratorio di informatica') if true).
 rule(is_suggested_prerequisite('matematica discreta', 'basi di dati') if true).
 rule(is_suggested_prerequisite('linguaggi di programmazione', 'basi di dati') if true).
-rule(is_suggested_prerequisite('programmazione', 'ingegneria del software') if true).
 rule(is_suggested_prerequisite('laboratorio di informatica', 'ingegneria del software') if true).
 rule(is_suggested_prerequisite('linguaggi di programmazione', 'ingegneria del software') if true).
 
+% third year prerequisite : do 6 exams of the first year
 rule(third_year_prerequisite(DoneExams, 'informatica') if
     third_year_prerequisite_no(DoneExams, 'informatica', 6)).
 rule(third_year_prerequisite_no(_, 'informatica', 0) if true).
@@ -54,6 +54,7 @@ rule(third_year_prerequisite_no([DoneExam|DoneExams], 'informatica', N) if
 rule(third_year_prerequisite_no([_|DoneExams], 'informatica', N) if 
         third_year_prerequisite_no(DoneExams, 'informatica', N)).
 
+% third year prerequisite : do 2 exams of the categories [inf/01, ing-inf/05]
 rule(second_year_prerequisite(DoneExams, 'informatica') if
     second_year_prerequisite_no(DoneExams, 'informatica', 2)).
 rule(second_year_prerequisite_no(_, 'informatica', 0) if true).
@@ -70,13 +71,15 @@ rule(second_year_prerequisite_no([DoneExam|DoneExams], 'informatica', N) if
 rule(second_year_prerequisite_no([_|DoneExams], 'informatica', N) if 
         second_year_prerequisite_no(DoneExams, 'informatica', N)).
 
+% math prerequisite : do a math exam or do admission test
 rule(math_prerequisite([DoneExam|DoneExams], 'informatica') if
         teaching(DoneExam, _, Category, _) and
         (
             (
                 taught_in(DoneExam, 'informatica', 1, _) and
                 callp(sub_string(Category, _, _, _, 'mat/'))
-            ) or 
+            ) 
+            or 
             math_prerequisite(DoneExams, 'informatica')
         )
     ).
@@ -202,4 +205,16 @@ rule(set_of_prioritized_prerequisites(Exam, DoneExam, 'informatica', Prerequisit
     get_math_prerequisites(DoneExam, Year, MathPrerequisites) and
     get_year_prerequisites(DoneExam, Year, YearPrerequisites) and
     pick_prerequisite(STPrerequisites, MathPrerequisites, YearPrerequisites, Prerequisites)
+).
+
+rule(respects_prerequisites([OrderedExam], DoneExams, 'informatica') if 
+    set_of_prioritized_prerequisites(OrderedExam, DoneExams, 'informatica', [])
+).
+rule(respects_prerequisites([OrderedExam|OrderedExams], DoneExams, 'informatica') if
+    set_of_prioritized_prerequisites(OrderedExam, DoneExams, 'informatica', []) and
+    respects_prerequisites(OrderedExams, [OrderedExam|DoneExams], 'informatica')
+).
+
+rule(set_of_suggested_prerequisites(Exam, SuggestedPrerequisites) if
+    callp(find_all(TeachingName, is_suggested_prerequisite(TeachingName, Exam), SuggestedPrerequisites))
 ).
