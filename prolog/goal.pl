@@ -4,8 +4,6 @@
 :- multifile rule/1.
 :- dynamic rule/1.
 
-% TODO :
-% - admission test
 
 rule(goal_cdl(Cdl, DoneExams, Ordering) if
     cdl(Cdl, _, NoYears, _) and
@@ -265,7 +263,6 @@ rule(add_optional_exams(ToDoExams, Cdl, NoYears, SubYear, SubSemester, ToDoExamW
         ) and
         callp(random_permutation(OptionalTeachings, [FirstOptionalExam, SecondOptionalExam|_])) and
         callp(append(ToDoExams, [FirstOptionalExam, SecondOptionalExam], ToDoExamWithOptional))
-
     ) 
     or
     (   

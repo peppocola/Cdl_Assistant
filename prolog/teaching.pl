@@ -198,3 +198,9 @@ rule(teaching('sistemi ed agenti',6,'inf/01',true) if true).
 rule(taught_by('sistemi ed agenti', 'a', 'berardina de carolis') if true).
 rule(taught_in('sistemi ed agenti', 'informatica', 3, 2) if true).
 rule(credit_split('sistemi ed agenti', 4, 0, 2) if true).
+
+/*
+admission test
+*/
+
+rule(teaching('test di ammissione',0,'no',true) if true).

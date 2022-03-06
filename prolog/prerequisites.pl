@@ -75,6 +75,8 @@ rule(second_year_prerequisite_no([_|DoneExams], 'informatica', N) if
 rule(math_prerequisite([DoneExam|DoneExams], 'informatica') if
         teaching(DoneExam, _, Category, _) and
         (
+            callp(DoneExam = 'test di ammissione')
+            or
             (
                 taught_in(DoneExam, 'informatica', 1, _) and
                 callp(sub_string(Category, _, _, _, 'mat/'))
