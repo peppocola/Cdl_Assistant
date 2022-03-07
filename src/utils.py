@@ -10,3 +10,14 @@ def get_list_from_string(string: str):
     if string == '':
         return []
     return string.replace(", ", ",").split(",")
+
+
+def get_bool_from_string(string: str):
+    list_true = ["true", "yes", "y", "yay", "yea", "ya", "sure"]
+    list_false = ["false", "no", "n", "nah", "nope", "nay", "nein"]
+    if string.lower() in list_true:
+        return True
+    elif string.lower() in list_false:
+        return False
+    else:
+        return string

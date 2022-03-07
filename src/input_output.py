@@ -1,15 +1,21 @@
 import json
 import random
 
+import rich
 import rich.text
 from rich.console import Console
 
-QUESTION_PATH = "../intents/parameter_asking.json"
+
+QUESTION_PATH = "../dialogue/parameter_asking.json"
+ANSWER_PATH = "../dialogue/answers.json"
 console = Console()
 
 
 with open(QUESTION_PATH, 'r') as f:
     questions_json = json.load(f)
+
+with open(ANSWER_PATH, 'r') as f:
+    answer_json = json.load(f)
 
 
 def get_missing_parameters(parameter_keys):
@@ -30,4 +36,19 @@ def query_user(question):
     text = rich.text.Text(prefix + question + '\n', style="bold magenta")
     return console.input(text)
 
+
+def message_user(message):
+    if isinstance(message, rich.table.Table):
+        console.print(message)
+    else:
+        prefix = "CDL-assistant> "
+        text = rich.text.Text(prefix + message + '\n', style="bold magenta")
+        console.print(text)
+
+
+def get_answer(answer_key):
+    for entry in answer_json["answers"]:
+        if entry["tag"] == answer_key:
+            return random.choice(entry["text"])
+    return "Sorry, I don't know how to answer that."
 

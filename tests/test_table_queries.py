@@ -21,12 +21,11 @@ def test_tables():
     table_teacher = create_rich_table(table, title)
     print(table_teacher)
 
-    # TODO: optional teachings as last ? are you sure?
-    table, title = get_cdl_ordering('informatica', ['linguaggi di programmazione'], 3, 2)
+    table, title = get_cdl_ordering('informatica', ['linguaggi di programmazione'], 3, 2, admission_test=False, suggested_prerequisites=False)
     table_ordering = create_rich_table(table, title)
     print(table_ordering)
 
-    table, title = get_covers_ordering('informatica', [], 3, 2, ['information filtering', 'generi e tipologie di videogiochi', 'testing', 'funzioni hash'])
+    table, title = get_covers_ordering('informatica', [], 3, 2, ['information filtering', 'generi e tipologie di videogiochi', 'testing', 'funzioni hash'], admission_test=False, suggested_prerequisites=False)
     table_ordering = create_rich_table(table, title)
     print(table_ordering)
 

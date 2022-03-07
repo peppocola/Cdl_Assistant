@@ -5,7 +5,7 @@ from utils import generate_list_for_query
 import pandas as pd
 
 
-def get_covers_ordering(cdl_name: str, done_exams: list, year: int, semester: int, topics: list):
+def get_covers_ordering(cdl_name: str, done_exams: list, year: int, semester: int, topics: list, admission_test: bool, suggested_prerequisites: bool):
     pi = PrologInterface()
     pi.load_rules()
     done_exams = generate_list_for_query(done_exams)
@@ -28,7 +28,7 @@ def get_covers_ordering(cdl_name: str, done_exams: list, year: int, semester: in
     return table, title
 
 
-def get_cdl_ordering(cdl_name: str, done_exams: list, year: int, semester: int):
+def get_cdl_ordering(cdl_name: str, done_exams: list, year: int, semester: int, admission_test: bool, suggested_prerequisites: bool):
     pi = PrologInterface()
     pi.load_rules()
     done_exams = generate_list_for_query(done_exams)
@@ -129,3 +129,6 @@ def check_teacher(pi: PrologInterface, teacher_name: str):
 def check_teaching(pi: PrologInterface, teaching_name: str):
     return pi.query(pi.format_backward_query(f"teaching('{teaching_name}', _, _, _)")) == pi.true
 
+
+def check_no_cfu(pi: PrologInterface, cdl_name: str, no_cfu: int):
+    return no_cfu <= pi.query(pi.format_backward_query(f"cdl('{cdl_name}', _, _, Cfu)"))[0]['Cfu']

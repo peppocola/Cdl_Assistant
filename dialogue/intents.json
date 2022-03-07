@@ -55,6 +55,22 @@
 
     {"tag" : "covered_topics",
      "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )covered topics for ([a-zA-Z ]+) ?\\??"],
-      "params" : ["teaching_name"]}
+      "params" : ["teaching_name"]},
+
+    {"tag" : "goodbye",
+     "patterns" : ["you can't", "you cant", "i don't need help", "i dont need help", "i'm ok"],
+      "params" : []},
+
+    {"tag" : "help",
+     "patterns" : ["help", "what can you do?\\?", "what can you do for me?\\?", "how can you help me?\\?"],
+      "params" : []},
+
+    {"tag" : "hello",
+     "patterns" : ["hello", "hi", "hey", "howdy"],
+      "params" : []},
+
+    {"tag" : "thanks",
+     "patterns" : ["thanks", "thank you", "thank you very much", "thank you so much", "tysm", "tysm"],
+      "params" : []}
 
 ]}

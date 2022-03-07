@@ -57,7 +57,6 @@
         "What teaching do you want this information for?"
       ]
     },
-
     {
       "parameter": "no_cfu",
       "questions": [
@@ -65,6 +64,23 @@
         "How many CFU you want to obtain?",
         "How many CFU you need to obtain?",
         "How many CFU do you want?"
+      ]
+    },
+    {
+      "parameter": "admission_test",
+      "questions": [
+        "Have you passed the admission test?",
+        "Have you attended and passed the admission test?",
+        "Did you pass the admission test?",
+        "Did you attend and pass the admission test?"
+      ]
+    },
+    {
+      "parameter": "suggested_prerequisites",
+      "questions": [
+        "Do you want the ordering to respect also the suggested prerequisites?",
+        "Do you want to respect the suggested prerequisites?",
+        "Do you want to respect the non mandatory prerequisites?"
       ]
     }
   ]
