@@ -204,3 +204,4 @@ admission test
 */
 
 rule(teaching('test di ammissione',0,'no',true) if true).
+rule(taught_in('test di ammissione', 'informatica', 0, 0) if true).

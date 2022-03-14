@@ -168,9 +168,9 @@ rule(book('modern information retrieval: the concepts and technology behind sear
 rule(book('introduction to information retrieval', '978-0521865715', 'manning') if true).
 rule(book('recommender systems: an introduction', '978-0521493369', 'jannach') if true).
 
-rule(suggested_for('modern information retrieval: the concepts and technology behind search', 'metodi per il ritrovamento dell’informazione') if true).
-rule(suggested_for('introduction to information retrieval', 'metodi per il ritrovamento dell’informazione') if true).
-rule(suggested_for('recommender systems: an introduction', 'metodi per il ritrovamento dell’informazione') if true).
+rule(suggested_for('modern information retrieval: the concepts and technology behind search', 'metodi per il ritrovamento dell\'informazione') if true).
+rule(suggested_for('introduction to information retrieval', 'metodi per il ritrovamento dell\'informazione') if true).
+rule(suggested_for('recommender systems: an introduction', 'metodi per il ritrovamento dell\'informazione') if true).
 
 
 rule(book('introduction to game development', '978-1584506799', 'rabin') if true).

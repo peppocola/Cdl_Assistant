@@ -38,7 +38,6 @@ rule(goal_covers(Cdl, DoneExams, Topics, Ordering) if
 ).
 
 rule(goal_covers(Cdl, DoneExams, Topics, SubYear, Ordering) if
-    cdl(Cdl, _, _, _) and
     goal_covers(Cdl, DoneExams, Topics, SubYear, 2, Ordering)
 ).
 
@@ -54,14 +53,51 @@ rule(goal_covers(Cdl, DoneExams, Topics, SubYear, SubSemester, Ordering) if
     callp(subtract(Teachings, DoneExams, ToDoExams)) and
     % random permute the exams
     callp(random_permutation(ToDoExams, ShuffledExams)) and
-    % get all standard prerequisites
-    get_all_standard_prerequisites(ShuffledExams, DoneExams, STPrerequisites) and
-    % create todo exams list
-    callp(append(STPrerequisites, ShuffledExams, ListToDoExams)) and
-    callp(list_to_set(ListToDoExams, NewToDoExams)) and
+    % remove duplicates if some
+    callp(list_to_set(ShuffledExams, NewToDoExams)) and
     % find an ordering which respects prerequisites
-    ordering(NewToDoExams, DoneExams, Cdl, Ordering)
+    covers_ordering(NewToDoExams, DoneExams, Cdl, Ordering)
 ).
+
+rule(covers_ordering(ToDoExams, DoneExams, Cdl, Ordering) if
+    union_prerequisites(ToDoExams, DoneExams, Cdl, Prerequisites) and
+    covers_ordering_(Prerequisites, ToDoExams, DoneExams, Cdl, Ordering)
+).
+
+rule(covers_ordering_(Prerequisites, ToDoExams, DoneExams, Cdl, Ordering) if
+    split_exams(ToDoExams, DoneExams, Cdl, NoPrereqExams, _) and
+    % all exams have prerequisites to do
+    callp(NoPrereqExams = []) and
+    % pick the exam which has the most standard prerequisites
+    callp(random_permutation(Prerequisites, ShuffledPrerequisites)) and
+    pick_multiple_priority_exam(ToDoExams, ShuffledPrerequisites, DoneExams, Cdl, ToDoPrerequisite) and
+    % do exam if possible
+    set_of_prioritized_prerequisites(ToDoPrerequisite, DoneExams, Cdl, PrioritizedPrerequisites) and
+    (
+        (
+            callp(PrioritizedPrerequisites = []) and
+            % update prerequisites
+            union_prerequisites(ToDoExams, [ToDoPrerequisite | DoneExams], Cdl, NewPrerequisites) and
+            % call recursively
+            callp(Ordering = [ToDoPrerequisite | PartialOrdering]) and
+            covers_ordering_(NewPrerequisites, ToDoExams, [ToDoPrerequisite | DoneExams], Cdl, PartialOrdering)
+        ) or
+        (
+            covers_ordering_(PrioritizedPrerequisites, ToDoExams, DoneExams, Cdl, Ordering)        
+        )  
+    )
+).
+rule(covers_ordering_(Prerequisites, ToDoExams, DoneExams, Cdl, Ordering) if
+    split_exams(ToDoExams, DoneExams, Cdl, NoPrereqExams, _) and
+    % if some have no prerequisite, set as done
+    callp(\+ NoPrereqExams = []) and
+    callp(subtract(ToDoExams, NoPrereqExams, NewToDoExams)) and
+    callp(append(DoneExams, NoPrereqExams, NewDoneExams)) and
+    covers_ordering_(Prerequisites, NewToDoExams, NewDoneExams, Cdl, PartialOrdering) and
+    callp(append(NoPrereqExams, PartialOrdering, Ordering))
+).
+rule(covers_ordering_(_, [], _, _, []) if true).
+
 
 rule(goal_cfu_count(Cdl, DoneExams, RequiredCfu, Ordering, Count) if
     cdl(Cdl, _, NoYears, _) and
@@ -85,6 +121,7 @@ rule(goal_cfu(Cdl, DoneExams, SubYear, SubSemester, RequiredCfu, Ordering) if
     callp(SubYear =< NoYears) and
     callp(SubSemester =< 2) and
     valid_teaching_list(DoneExams, Cdl, SubYear, SubSemester) and
+    % TODO : improve valid_cfu with subyear and subsemester
     valid_cfu_number(DoneExams, Cdl, RequiredCfu) and
     cdl_teachings(Cdl, SubYear, SubSemester, Teachings) and
     % remove teachings which are already done
@@ -142,7 +179,7 @@ rule(cfu_ordering_([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) 
     % remove exam from todo list to avoid duplicates
     callp(subtract(ToDoExams, [PrerequisiteExam], ToDoExamsWithoutNewPrerequisite)) and
     % recursively call the ordering rule
-    cfu_ordering_([PrerequisiteExam, ToDoExam|ToDoExamsWithoutNewPrerequisite], DoneExams, RequiredCfu, Cdl, Ordering)
+    cfu_ordering([PrerequisiteExam, ToDoExam|ToDoExamsWithoutNewPrerequisite], DoneExams, RequiredCfu, Cdl, Ordering)
 ).
 
 % case prerequisites are satisfied
@@ -153,7 +190,7 @@ rule(cfu_ordering_([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) 
     callp(Prerequisites = []) and
     % the exam should be put in the ordering
     callp(Ordering = [ToDoExam|RecOrdering]) and
-    % see if there are still required cfus
+    % retrieve number of cfu of the exam
     teaching(ToDoExam, ExamCfu, _, _) and
     callp(NewRequiredCfu is (RequiredCfu - ExamCfu)) and
     % check if there are still required cfus or not
@@ -166,7 +203,7 @@ rule(cfu_ordering_([ToDoExam|ToDoExams], DoneExams, RequiredCfu, Cdl, Ordering) 
         (   % case there are still required cfus
             callp(Ordering = [ToDoExam|RecOrdering]) and
             % recursively call the ordering rule
-            cfu_ordering_(ToDoExams, [ToDoExam|DoneExams], NewRequiredCfu, Cdl, RecOrdering)
+            cfu_ordering(ToDoExams, [ToDoExam|DoneExams], NewRequiredCfu, Cdl, RecOrdering)
         )    
     )          
 ).
@@ -304,31 +341,6 @@ rule(pick_an_exam(Exams, Exam) if
     callp(random_permutation(Exams, [Exam|_]))
 ).
 
-% this aims to pick the exam which has more standard prerequisites
-rule(pick_priority_exam(Exams, DoneExams, Exam) if 
-    count_standard_prerequisites(Exams, DoneExams, Lens) and
-    callp(max_l(Exams, Lens, Exam, _))
-).
-
-rule(count_standard_prerequisites([Exam|Exams], DoneExams, [Len|Lens]) if
-    get_standard_prerequisites(Exam, DoneExams, STPrerequisites) and
-    callp(length(STPrerequisites, Len)) and
-    count_standard_prerequisites(Exams, DoneExams, Lens)
-).
-rule(count_standard_prerequisites([], _, []) if true).
-
-rule(get_all_standard_prerequisites(Exams, DoneExams, Prerequisites) if
-    get_all_standard_prerequisites_(Exams, DoneExams, ListPrerequisites) and
-    callp(list_to_set(ListPrerequisites, Prerequisites))
-).
-
-rule(get_all_standard_prerequisites_([Exam|Exams], DoneExams, Prerequisites) if
-    get_standard_prerequisites(Exam, DoneExams, STPrerequisites) and
-    get_all_standard_prerequisites_(Exams, DoneExams, OtherSTPrerequisites) and
-    callp(append(STPrerequisites, OtherSTPrerequisites, Prerequisites))
-).
-rule(get_all_standard_prerequisites_([], _, []) if true).
-
 % generate a list of probabilities for each exam, which is cfu/total cfus
 rule(cfu_to_probability([Exam|Exams], Cdl, [P|Ps]) if 
     teaching(Exam, Cfu, _, _) and
@@ -354,4 +366,52 @@ rule(sample_exam(ToDoExams, Cdl, Exam) if
      cfu_to_probability(ToDoExams, Cdl, CfuSum, Probability) and
      % sample an exam
      callp(sample(ToDoExams, Probability, Exam))
+).
+
+rule(split_exams([Exam|Exams], DoneExams, Cdl, CanDoExams, CannotDoExams) if
+    set_of_prioritized_prerequisites(Exam, DoneExams, Cdl, Prerequisites) and
+    (
+        (
+            callp(Prerequisites = []) and
+            callp(CanDoExams = [Exam|CanDoExamsRec]) and
+            split_exams(Exams, DoneExams, Cdl, CanDoExamsRec, CannotDoExams)
+        )
+        or
+        (
+            callp(\+Prerequisites = []) and
+            callp(CannotDoExams = [Exam|CannotDoExamsRec]) and
+            split_exams(Exams, DoneExams, Cdl, CanDoExams, CannotDoExamsRec)
+        )
+    )
+).
+rule(split_exams([], _, _, [], []) if true).
+
+rule(goal_cfu_backtrack(RequiredCfu, Cdl, Ordering) if
+    callp(find_all(AnOrdering, 
+                    (goal_cfu_backtrack_([], RequiredCfu, Cdl, AnOrdering)),
+                    Orderings)) and
+    callp(random_permutation(Orderings, ShuffledOrderings)) and
+    sum_multiple_cfu(ShuffledOrderings, CfuSum) and
+    callp(min_l(ShuffledOrderings, CfuSum, Ordering, _))
+).
+
+rule(goal_cfu_backtrack_(PartialOrdering, RequiredCfu, Cdl, Ordering) if
+    taught_in(Exam, Cdl, _, _) and
+    teaching(Exam, _, _, _) and
+    callp(append(PartialOrdering, [Exam], NewOrdering)) and
+    callp(is_set(NewOrdering)) and
+    respects_prerequisites([Exam], PartialOrdering, Cdl) and
+    sum_cfu(NewOrdering, CfuSum) and
+    callp(CfuSum < RequiredCfu) and
+    goal_cfu_backtrack_(NewOrdering, RequiredCfu, Cdl, Ordering)
+).
+
+rule(goal_cfu_backtrack_(PartialOrdering, RequiredCfu, Cdl, Ordering) if
+    taught_in(Exam, Cdl, _, _) and
+    teaching(Exam, _, _, _) and
+    callp(append(PartialOrdering, [Exam], Ordering)) and
+    callp(is_set(Ordering)) and
+    respects_prerequisites([Exam], PartialOrdering, Cdl) and
+    sum_cfu(Ordering, CfuSum) and
+    callp(CfuSum >= RequiredCfu)
 ).

@@ -78,6 +78,11 @@ rule(sum_cfu([Teaching|Teachings], Sum) if
     callp(Sum is Sum1 + Cfu)
 ).
 
+rule(sum_multiple_cfu([], []) if true).
+rule(sum_multiple_cfu([Ordering|Orderings], [Sum|Sums]) if 
+    sum_multiple_cfu(Orderings, Sums) and
+    sum_cfu(Ordering, Sum)
+).
 rule(belongs_to_cdl([], _) if true).
 rule(belongs_to_cdl([Teaching|Teachings], Cdl) if
     % teaching is a teaching
