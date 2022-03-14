@@ -25,9 +25,9 @@ def get_integrity_checks(pi: PrologInterface, cdl_name):
     }
 
 
-# TODO : forget intent
 # TODO : query cfu
-# TODO : fix intent detection
+# TODO : add adjust ordering and handle new parameters
+# TODO : remove duplicates from topics and exams
 
 class IntentHandler(object):
     def __init__(self):
@@ -70,7 +70,6 @@ class IntentHandler(object):
     def get_intent_(self, user_input):
 
         user_input = user_input.lower()
-
         for intent in self.intents['intents']:
             patterns = intent['patterns']
             for pattern in patterns:
@@ -86,6 +85,7 @@ class IntentHandler(object):
         raise Exception("No intent found")
 
     def get_intent(self, user_input):
+        self.erase()
         while not self.intent:
             try:
                 self.get_intent_(user_input)  # user_input
@@ -199,7 +199,7 @@ class IntentHandler(object):
             self.get_missing_keys()
         self.parameter_typecheck()
         while self.missing_keys:
-            message_user("Some of the data you inserted has not the correct type: ", ', '.join(self.missing_keys))
+            message_user("Some of the data you inserted has not the correct type: " + ', '.join(self.missing_keys))
             missing_parameters = get_missing_parameters(self.missing_keys)
             if missing_parameters:
                 self.intent_data |= missing_parameters
@@ -208,7 +208,7 @@ class IntentHandler(object):
             self.parameter_typecheck()
         self.parameter_integrity_checks()
         while self.missing_keys:
-            message_user("I think some data you inserted is not correct, please, let me ask again: "+', '.join(self.missing_keys))
+            message_user("I think some data you inserted is not correct, please, let me ask again: " + ', '.join(self.missing_keys))
             missing_parameters = get_missing_parameters(self.missing_keys)
             if missing_parameters:
                 self.intent_data |= missing_parameters

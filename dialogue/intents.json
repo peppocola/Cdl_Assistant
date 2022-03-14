@@ -1,64 +1,68 @@
 {"intents" : [
     {"tag" : "cdl_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering (?:for|in) a cdl ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering (?:for|in) a cdl ?\\??"],
       "params" : []},
   
     {"tag" : "cdl_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering (?:for|in) ([a-zA-Z ]+) year [1-3] semester [1-2] ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering (?:for|in) ([a-zA-Z ]+) year [1-3] semester [1-2] ?\\??"],
       "params" : ["cdl_name", "year", "semester"]},
 
     {"tag" : "cdl_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering (?:for|in) ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering (?:for|in) ([a-zA-Z ]+) ?\\??"],
       "params" : ["cdl_name"]},
 
     {"tag" : "covers_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering to learn some topics (?:for|in) a cdl ?\\??",
-                    "(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering to cover some topics (?:for|in) a cdl ?\\??",
-                    "(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering for learing some topics (?:for|in) a cdl  ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering to learn some topics (?:for|in) a cdl ?\\??",
+                    "(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering to cover some topics (?:for|in) a cdl ?\\??",
+                    "(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering for learing some topics (?:for|in) a cdl  ?\\??"],
       "params" : []},
 
     {"tag" : "covers_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering to learn some topics for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering to learn some topics for ([a-zA-Z ]+) ?\\??"],
       "params" : ["cdl_name"]},
-  
+
     {"tag" : "covers_ordering",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )an exam ordering to learn ([a-zA-Z ]+(?:,[a-zA-Z ]+)*) for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering to learn ([a-zA-Z ]+(?:,[a-zA-Z ]+)*) for a cdl ?\\??"],
+      "params" : ["topics"]},
+
+    {"tag" : "covers_ordering",
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?suggest (?:me )?an exam ordering to learn ([a-zA-Z ]+(?:,[a-zA-Z ]+)*) for ([a-zA-Z ]+) ?\\??"],
       "params" : ["topics", "cdl_name"]},
 
     {"tag" : "suggested_books",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )suggested books for a teaching ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?suggested books for a teaching ?\\??"],
       "params" : []},
 
     {"tag" : "suggested_books",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )suggested books for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?suggested books for ([a-zA-Z ]+) ?\\??"],
       "params" : ["teaching_name"]},
 
     {"tag" : "table_teachings",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )the teachings for a cdl ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?(?:the )?teachings for a cdl ?\\??"],
       "params" : []},
 
     {"tag" : "table_teachings",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )the teachings for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?(?:the )?teachings for ([a-zA-Z ]+) ?\\??"],
       "params" : ["cdl_name"]},
 
     {"tag" : "teacher_information",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )teachers for a teaching ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?teachers for a teaching ?\\??"],
       "params" : []},
 
     {"tag" : "teacher_information",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )teachers for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?teachers for ([a-zA-Z ]+) ?\\??"],
       "params" : ["teacher_name"]},
 
     {"tag" : "covered_topics",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )covered topics for a teaching ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?covered topics for a teaching ?\\??"],
       "params" : []},
 
     {"tag" : "covered_topics",
-     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )covered topics for ([a-zA-Z ]+) ?\\??"],
+     "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?covered topics for ([a-zA-Z ]+) ?\\??"],
       "params" : ["teaching_name"]},
 
     {"tag" : "goodbye",
-     "patterns" : ["you can't", "you cant", "i don't need help", "i dont need help", "i'm ok"],
+     "patterns" : ["you can't", "you cant", "i don't need help", "i dont need help", "i'm ok", "goodbye", "bye", "see you"],
       "params" : []},
 
     {"tag" : "help",
@@ -66,7 +70,7 @@
       "params" : []},
 
     {"tag" : "hello",
-     "patterns" : ["hello", "hi", "hey", "howdy"],
+     "patterns" : ["^hello$", "^hi$", "^hey$", "^howdy$"],
       "params" : []},
 
     {"tag" : "thanks",
