@@ -25,9 +25,9 @@ def get_integrity_checks(pi: PrologInterface, cdl_name):
     }
 
 
-# TODO : query cfu
-# TODO : add adjust ordering and handle new parameters
-# TODO : remove duplicates from topics and exams
+# TODO : query cfu (use sampling)
+# TODO : adjust ordering
+# TODO : suggested prerequisites
 
 class IntentHandler(object):
     def __init__(self):
@@ -98,6 +98,7 @@ class IntentHandler(object):
             if key in self.intent_data.keys():
                 if isinstance(self.intent_data[key], str):
                     self.intent_data[key] = [x.lower() for x in get_list_from_string(self.intent_data[key])]
+                self.intent_data[key] = list(set(self.intent_data[key]))
         to_int_keys = ['year', 'semester']
         for key in to_int_keys:
             if key in self.intent_data.keys():
