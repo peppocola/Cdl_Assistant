@@ -1,0 +1,87 @@
+{
+  "questions": [
+    {
+      "parameter": "semester",
+      "questions": [
+        "What semester are you in?",
+        "Which semester are you in?",
+        "Which semester are you enrolled in?",
+        "What semester are you enrolled in?"
+      ],
+      "instructions":
+        "Enter an integer. For example, if you are enrolled in the second semester, please enter 2."
+    },
+    {
+      "parameter": "year",
+      "questions": [
+        "What year are you in?",
+        "Which year are you in?",
+        "What year are you enrolled in?",
+        "Which year are you enrolled in?"
+      ],
+      "instructions":
+        "Enter an integer. For example, if you are enrolled in the first year, please enter 1."
+    },
+    {
+      "parameter": "cdl_name",
+      "questions": [
+        "What CDL are you enrolled in?",
+        "In which CDL are you enrolled?",
+        "What is the name of your CDL?"
+      ]
+    },
+
+    {
+      "parameter": "done_exams",
+      "questions": [
+        "What are the names of the exams you have taken?",
+        "Which exam have you already taken?"
+      ],
+      "instructions":
+        "Please enter the names of the exam you have taken, separated by commas. If you haven't taken any exam, leave this blank."
+    },
+
+    {
+      "parameter": "topics",
+      "questions": [
+        "What are the topics you want to learn?",
+        "Which topics do you need to learn?"
+      ]
+    },
+
+    {
+      "parameter": "teaching_name",
+      "questions": [
+        "Which teaching?",
+        "For which teaching you want this information?",
+        "What teaching do you want this information for?"
+      ]
+    },
+    {
+      "parameter": "no_cfu",
+      "questions": [
+        "How many CFU do you need?",
+        "How many CFU you want to obtain?",
+        "How many CFU you need to obtain?",
+        "How many CFU do you want?"
+      ]
+    },
+    {
+      "parameter": "admission_test",
+      "questions": [
+        "Have you passed the admission test?",
+        "Have you attended and passed the admission test?",
+        "Did you pass the admission test?",
+        "Did you attend and pass the admission test?"
+      ]
+    },
+    {
+      "parameter": "suggested_prerequisites",
+      "questions": [
+        "Do you want the ordering to respect also the suggested prerequisites?",
+        "Do you want to respect the suggested prerequisites?",
+        "Do you want to respect the non mandatory prerequisites?"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "answers":
+  [
+    {
+      "tag": "goodbye",
+      "text": ["Goodbye!", "Bye!", "See you later!", "See you next time!", "Have a nice day!"]
+    },
+    {
+      "tag": "hello",
+      "text": ["Hello!", "Hi!", "Hey!", "Howdy!"]
+    },
+    {
+      "tag": "thanks",
+      "text": ["You're welcome!", "No problem!", "My pleasure!", "Anytime!", "That's what I'm here for!", "That's my job!", "I'm happy to help!", "I'm glad to be of service!"]
+    },
+    {
+      "tag": "help",
+      "text": [
+        "You can ask me for: \n\t-Exam ordering for a cdl\n\t-Exam ordering which covers some topics of your choice\n\t-Exam ordering to achieve a given number of cfu\n\t-Courses for a cdl\n\t-Teacher information\n\t-Suggested books for an exam"
+      ]
+    }
+  ]
+}
