@@ -11,3 +11,5 @@ Install requirements with:
 Move to the `src` folder.
 
 After doing this, you can run `intent_detection.py`
+
+The code can also be run on a preset [Colab Notebook](https://colab.research.google.com/drive/1y8BD3Z1WfdHFSeUPsvZVoBiL-hcVX_BR?usp=sharing)
