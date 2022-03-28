@@ -8,4 +8,6 @@ Install requirements with:
 
 `pip install -r requirements.txt`
 
-After doing this, you can run `tests\test_intent_detection.py`
+Move to the `src` folder.
+
+After doing this, you can run `intent_detection.py`
