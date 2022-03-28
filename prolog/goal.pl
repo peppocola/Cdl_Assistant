@@ -415,7 +415,7 @@ rule(goal_cfu_backtrack_(PartialOrdering, RequiredCfu, SubYear, SubSemester, Cdl
     teaching(Exam, _, _, _) and
     callp(\+ member(Exam, PartialOrdering)) and
     callp(append(PartialOrdering, [Exam], Ordering)) and
-    valid_teaching_list(NewOrdering, Cdl, SubYear, SubSemester) and
+    valid_teaching_list(Ordering, Cdl, SubYear, SubSemester) and
     respects_prerequisites([Exam], PartialOrdering, Cdl) and
     sum_cfu(Ordering, CfuSum) and
     callp(CfuSum >= RequiredCfu)
