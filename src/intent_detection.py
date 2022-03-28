@@ -217,3 +217,7 @@ class IntentHandler(object):
             self.adjust_intent()
             self.get_missing_keys()
             self.parameter_integrity_checks()
+ 
+if __name__ == '__main__':
+    ih = IntentHandler()
+    ih.handle_intent()
