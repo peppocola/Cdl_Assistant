@@ -72,7 +72,7 @@
 
     {"tag" : "teacher_information",
      "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?teachers for ([a-zA-Z ]+) ?\\??"],
-      "params" : ["teacher_name"]},
+      "params" : ["teaching_name"]},
 
     {"tag" : "covered_topics",
      "patterns" : ["(?:can you (?:please )?|will you (?:please )?)?show (?:me )?covered topics for a teaching ?\\??"],

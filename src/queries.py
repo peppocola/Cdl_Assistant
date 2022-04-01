@@ -104,17 +104,17 @@ def get_suggested_books(teaching_name: str):
     return table, title
 
 
-def get_teacher_information(teacher_name: str):
+def get_teacher_information(teaching_name: str):
     pi = PrologInterface()
     pi.set_to_consult(['teacher.pl', 'teaching.pl', 'inference.pl'])
     pi.load_rules()
 
-    query = f"taught_by('{teacher_name}', Course, Name) and teacher(Name, Mail, Phone)"
+    query = f"taught_by('{teaching_name}', Course, Name) and teacher(Name, Mail, Phone)"
     results = pi.query(pi.format_backward_query(query))
     table = pd.DataFrame(results)
     table['Name'] = table['Name'].apply(lambda x: x.title())
     table['Course'] = table['Course'].apply(lambda x: x.upper())
-    title = f'{string.capwords(teacher_name)}\'s teachers information'
+    title = f'{string.capwords(teaching_name)}\'s teachers information'
     return table, title
 
 
